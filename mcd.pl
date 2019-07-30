@@ -34,11 +34,31 @@ condicionDeFactor(Num,Factor):-
 	Resto is mod(Num,Factor),
 	not(Resto \= 0).
 	
-factores(Numero,Factores):-
-	findall(Factor,factor(Numero,Factor),Factores).
+
+multiplicarLista([], 1).
+
+multiplicarLista([X|Xs], S):-
+          multiplicarLista(Xs, S2),
+          S is S2 * X.
+
+factores(1,[]).
+factores(Numero,[Factor | Factores]):-
+	factor(Numero,Factor),
+	NuevoNumero is Numero/Factor,
+	factores(NuevoNumero,Factores).
 	
-mcd2(Numero1,Numero2,MCD):-
+mcd2(Numero1,Numero2,FX):-
 	factores(Numero1,Factores1),
 	factores(Numero2,Factores2),
-	select(MCD,Factores1,_),
-	member(MCD,Factores2).
+	intersection(Factores1,Factores2,MCDs),
+	multiplicarLista(MCDs,FX),
+	factor(Numero1,Fx),
+	factor(Numero2,Fx).
+	
+mcd21(Numero1,Numero2,MCD):-
+	factores(Numero1,Factores1),
+	factores(Numero2,Factores2),
+	intersection(Factores1,Factores2,FactoresComunes),
+	multiplicarLista(FactoresComunes,MCD),
+	factor(Numero1,MCD),
+	factor(Numero2,MCD).
