@@ -34,6 +34,9 @@ condicionDeFactor(Num,Factor):-
 	Resto is mod(Num,Factor),
 	not(Resto \= 0).
 	
+cantidadDePrimos(Cantidad):-
+	primos(Primos),
+	length(Primos,Cantidad).
 
 multiplicarLista([], 1).
 
@@ -44,16 +47,20 @@ multiplicarLista([X|Xs], S):-
 factores(1,[]).
 factores(Numero,[Factor | Factores]):-
 	factor(Numero,Factor),
-	NuevoNumero is Numero/Factor,
+	NuevoNumero is (Numero//Factor),
 	factores(NuevoNumero,Factores).
 	
-mcd2(Numero1,Numero2,FX):-
-	factores(Numero1,Factores1),
-	factores(Numero2,Factores2),
-	intersection(Factores1,Factores2,MCDs),
-	multiplicarLista(MCDs,FX),
-	factor(Numero1,Fx),
-	factor(Numero2,Fx).
+factoresComunes([],_,_).
+factoresComunes([Factor1 |Factores1],Factores2,FactoresComunes):-
+	select(Factor1,Factores2,FactoresRestantes),
+	factoresComunes(Factores1,FactoresRestantes,FactoresComunes).
+
+	
+subConjunto([],[]).
+subConjunto([X|L1],[X|L2]) :-
+	subConjunto(L1,L2).
+subConjunto([_|L1],L2) :-
+	subConjunto(L1,L2).
 	
 mcd21(Numero1,Numero2,MCD):-
 	factores(Numero1,Factores1),
