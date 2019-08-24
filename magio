@@ -1,0 +1,123 @@
+persona(bart).
+persona(larry).
+persona(otto).
+persona(marge).
+
+persona(alMando(burns,29)).
+persona(alMando(clark,20)).
+persona(novato(lenny)).
+persona(novato(carl)).
+persona(elElegido(homero)).
+
+hijo(homero,abbe).
+hijo(bart,homero).
+hijo(larry,burns).
+
+salvo(carl,lenny).
+salvo(homero,larry).
+salvo(otto,burns).
+
+gozaBeneficio(carl, confort(sillon)).
+gozaBeneficio(lenny, confort(sillon)).
+gozaBeneficio(lenny, confort(estacionamiento, techado)).
+gozaBeneficio(carl, confort(estacionamiento, libre)).
+gozaBeneficio(clark, confort(viajeSinTrafico)).
+gozaBeneficio(clark, dispersion(fiestas)).
+gozaBeneficio(burns, dispersion(fiestas)).
+gozaBeneficio(lenny, economico(descuento, 500)).
+
+%1
+aspiranteMagio(Persona):-
+descendiente(Persona,Ancestro),
+magio(Ancestro).
+
+aspiranteMagio(Persona):-
+salvo(Persona,Rescatado),
+magio(Rescatado).
+
+descendiente(Persona,Ancestro):-
+hijo(Persona,Ancestro).
+
+descendiente(Persona,Ancestro):-
+hijo(Persona2,Ancestro),
+descendiente(Persona,Persona2).
+
+magio(Persona):-
+persona(alMando(Persona,_)).
+
+magio(Persona):-
+persona(novato(Persona)).
+
+magio(Persona):-
+persona(elElegido(Persona)).
+
+%2 
+puedeDarOrdenes(DaOrden,RecibeOrden):-
+persona(DaOrden),
+persona(RecibeOrden),
+DaOrden\=RecibeOrden,
+superior(DaOrden,RecibeOrden).
+
+puedeDarOrdenes(elElegido(Nombre),Otro):-
+persona(Otro),
+Otro\=elElegido(Nombre),
+persona(elElegido(Nombre)).
+
+superior(alMando(_,Num),alMando(_,Num2)):-
+Num > Num2.
+
+superior(alMando(_,_),novato(_)).
+
+%3
+sienteEnvidia(Persona,Lista):-
+aspiranteMagio(Persona),
+findall(Magio,magio(Magio),Lista).
+
+sienteEnvidia(Persona,Lista):-
+persona(Persona),
+not(aspiranteMagio(Persona)),
+not(personaMaga(Persona)),
+findall(Aspirante,aspiranteMagio(Aspirante),Lista).
+
+sienteEnvidia(novato(Persona),Lista):-
+persona(novato(Persona)),
+findall(N,persona(alMando(N,_)),Lista).
+
+personaMaga(alMando(_,_)).
+personaMaga(novato(_)).
+personaMaga(elElegido(_)).
+
+%4
+masEnvidioso(Persona):-
+envidia(Persona,Cantidad),
+forall(envidia(_,Cantidad2),Cantidad >= Cantidad2 ).
+
+envidia(Persona,Cantidad):-
+sienteEnvidia(Persona,Lista),
+length(Lista,Cantidad).
+
+%5
+soloLoGoza(Persona, Beneficio):-
+gozaBeneficio(Persona,Beneficio1),
+findall(Beneficio,gozaBeneficio(_,Beneficio),Beneficios),
+select(Beneficio1,Beneficios,Beneficios3),
+forall(member(Beneficio2,Beneficios3),Beneficio2\=Beneficio1).
+
+%6
+ tipoDeBenefioMasAprovechado(Cual):-
+ cantidadBeneficio(Cual,Cantidad),
+ not((cantidadBeneficio(_,Cantidad2),Cantidad < Cantidad2)).
+
+ cantidadBeneficio(Tipo,Cantidad):-
+ tipo(Tipo),
+ findall(Beneficio,(gozaBeneficio(_,Beneficio),call(Tipo,Beneficio)),Beneficios),
+ length(Beneficios,Cantidad).
+ 
+ tipo(confort).
+ tipo(dispersion).
+ tipo(economico).
+ 
+ confort(confort(_)).
+ confort(confort(_,_)).
+ dispersion(dispersion(_)).
+ economico(economico(_,_)).
